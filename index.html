@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finanze">
+  <meta name="theme-color" content="#000000">
+  <title>Budget & Salvadanai</title>
+
+  <!-- Icona iOS generata automaticamente in SVG/DataURI -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231c1c1e'/><circle cx='90' cy='90' r='62' fill='none' stroke='%2330d158' stroke-width='14'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='-apple-system, sans-serif' font-size='64' font-weight='bold'>€</text></svg>">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --card-elevated: #2c2c2e;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --blue: #0a84ff;
+      --green: #30d158;
+      --yellow: #ffd60a;
+      --orange: #ff9f0a;
+      --red: #ff453a;
+      --purple: #bf5af2;
+      --border: #38383a;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding-top: calc(env(safe-area-inset-top) + 12px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 90px);
+      padding-left: 16px;
+      padding-right: 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-status {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: var(--card-elevated);
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-box {
+      background: var(--card-elevated);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .progress-wrap {
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: var(--card-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.25s ease, background-color 0.25s ease;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-family: inherit;
+      margin-bottom: 10px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+
+    .btn:active {
+      opacity: 0.7;
+    }
+
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-success { background: var(--green); color: #000; }
+    .btn-warning { background: var(--orange); color: #000; }
+    .btn-danger  { background: rgba(255, 69, 58, 0.18); color: var(--red); }
+    .btn-ghost   { background: var(--card-elevated); color: var(--text); }
+
+    .week-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .week-pill {
+      background: var(--card-elevated);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .week-pill.active {
+      background: rgba(10, 132, 255, 0.2);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .check-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-circle.checked {
+      background: var(--green);
+      border-color: var(--green);
+      color: #000;
+      font-weight: 900;
+    }
+
+    .item-title {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .item-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 14px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(28, 28, 30, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding-top: 8px;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+      z-index: 100;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+    }
+
+    .tab-icon {
+      font-size: 20px;
+    }
+
+    .tab-section {
+      display: none;
+    }
+
+    .tab-section.active {
+      display: block;
+    }
+
+    .small-input {
+      width: 90px;
+      padding: 6px 8px;
+      font-size: 14px;
+      margin-bottom: 0;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1 id="headerMonth">Bilancio Mensile</h1>
+      <div style="font-size: 13px; color: var(--text-muted);" id="ruleDescriptor">Assetto Base (900 €)</div>
+    </div>
+    <span class="badge-status" id="statusBadge">In Pareggio</span>
+  </header>
+
+  <!-- TAB 1: DASHBOARD & SPESE SETTIMANALI -->
+  <section id="tab-home" class="tab-section active">
+
+    <!-- Riepilogo Dinamico del Mese -->
+    <div class="card">
+      <div class="card-title">
+        <span>Panoramica Mese</span>
+        <span id="incomeLabel" style="color: var(--blue);">Entrate: 900,00 €</span>
+      </div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-label">Spese Fisse</div>
+          <div class="stat-val" id="totFixedStat">629 €</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Spesa & Casa</div>
+          <div class="stat-val" id="totEssStat">225 €</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Fondo + Uscite</div>
+          <div class="stat-val" id="totMarginStat" style="color: var(--green);">46 €</div>
+        </div>
+      </div>
+
+      <!-- Barra Consumo Variabili Mensili -->
+      <div class="progress-wrap" style="margin-top: 14px;">
+        <div class="progress-header">
+          <span>Consumi + Uscite spesi questo mese</span>
+          <span id="monthlyVarLabel">0,00 € / 246,00 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="monthlyVarBar" class="progress-bar-fill" style="width: 0%; background: var(--green);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controllo Tetti Settimanali -->
+    <div class="card">
+      <div class="card-title">
+        <span>Controllo Settimanale Anti-Sforamento</span>
+      </div>
+      <div class="week-pills" id="weekSelector">
+        <div class="week-pill active" onclick="setWeek(1)">Sett. 1</div>
+        <div class="week-pill" onclick="setWeek(2)">Sett. 2</div>
+        <div class="week-pill" onclick="setWeek(3)">Sett. 3</div>
+        <div class="week-pill" onclick="setWeek(4)">Sett. 4+</div>
+      </div>
+
+      <!-- Barra Spesa + Casa Settimanale -->
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span>Spesa + Casa/Salute (Sett. <span class="wNum">1</span>)</span>
+          <span id="weekEssText">0,00 € / 56,25 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="weekEssBar" class="progress-bar-fill" style="width: 0%; background: var(--blue);"></div>
+        </div>
+      </div>
+
+      <!-- Barra Uscite Settimanale (con Rollover) -->
+      <div class="progress-wrap" style="margin-top: 14px;">
+        <div class="progress-header">
+          <span>Uscite Amici/Ragazza (Sett. <span class="wNum">1</span>)</span>
+          <span id="weekSocText">0,00 € / 5,25 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="weekSocBar" class="progress-bar-fill" style="width: 0%; background: var(--yellow);"></div>
+        </div>
+        <div id="rolloverNote" style="font-size: 11px; color: var(--text-muted); margin-top: 5px;"></div>
+      </div>
+    </div>
+
+    <!-- Registra Nuova Spesa -->
+    <div class="card">
+      <div class="card-title"><span>Registra Spesa Rapida</span></div>
+      <div class="grid-2">
+        <input type="number" id="txAmount" placeholder="Importo (€)" step="0.1" inputmode="decimal">
+        <select id="txWeek">
+          <option value="1">Settimana 1</option>
+          <option value="2">Settimana 2</option>
+          <option value="3">Settimana 3</option>
+          <option value="4">Settimana 4+</option>
+        </select>
+      </div>
+      <select id="txCategory">
+        <option value="spesa">Spesa Alimentare (Budget: 190€)</option>
+        <option value="casa">Casa e Igiene (Budget: 20€)</option>
+        <option value="salute">Salute, Integrazione, Traumi (Budget: 15€)</option>
+        <option value="uscite">Uscite Amici + Ragazza (Budget: 21€)</option>
+        <option value="moto_uso">Preleva da Salvadanaio Moto (Tagliando/Gomme)</option>
+        <option value="imprevisto_uso">Preleva da Fondo Imprevisti (Emergenza)</option>
+      </select>
+      <input type="text" id="txNote" placeholder="Nota (es. Pollo/Riso, Birra, Caffè, Gomme...)">
+      <button class="btn btn-primary" onclick="addTransaction()">+ Aggiungi Movimento</button>
+    </div>
+
+    <!-- Ultime Spese del Mese -->
+    <div class="card">
+      <div class="card-title"><span>Movimenti Registrati nel Mese</span></div>
+      <div id="txList"></div>
+    </div>
+  </section>
+
+  <!-- TAB 2: BUDGET & SPESE FISSE -->
+  <section id="tab-fixed" class="tab-section">
+    <div class="card">
+      <div class="card-title"><span>Regola Entrate del Mese</span></div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+        Modifica l'importo se questo mese hai entrate diverse da 900 €. L'app adatterà automaticamente Fondo Imprevisti, Uscite e Spesa seguendo la regola 50/30/20.
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <input type="number" id="incomeInput" step="5" inputmode="decimal" style="margin-bottom:0;">
+        <button class="btn btn-primary" style="width: auto; padding: 0 18px;" onclick="updateIncome()">Salva</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Allocazione Calcolata per Questo Mese</span></div>
+      <div id="allocationBreakdown"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Spese Fisse e Obbligatorie</span>
+        <span id="fixedPaidStatus">0/6 pagate</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        Tocca il cerchio per segnare la spesa come pagata/accantonata questo mese, oppure modifica la cifra se una bolletta o il FlixBus varia.
+      </p>
+      <div id="fixedList"></div>
+    </div>
+  </section>
+
+  <!-- TAB 3: SALVADANAI STORICI & IMPOSTAZIONI -->
+  <section id="tab-vaults" class="tab-section">
+
+    <div class="card" style="border-color: rgba(48, 209, 88, 0.35);">
+      <div class="card-title">
+        <span style="color: var(--green);">Salvadanaio 1: Fondo Imprevisti Puri</span>
+        <span>Emergenze</span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 6px;" id="vaultEmergencyVal">0,00 €</div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        Quota prevista questo mese: <strong id="monthlyEmQuota" style="color: var(--text);">25,00 €</strong>. Da non toccare per nessun motivo salvo emergenze pure.
+      </p>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="manualVaultAdjust('emergency', 1)">+ Aggiungi Extra</button>
+        <button class="btn btn-danger" onclick="manualVaultAdjust('emergency', -1)">- Usa Fondo</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color: rgba(10, 132, 255, 0.35);">
+      <div class="card-title">
+        <span style="color: var(--blue);">Salvadanaio 2: Fondo Manutenzione Moto</span>
+        <span>Sinking Fund</span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 6px;" id="vaultMotoVal">0,00 €</div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        Quota fissa mensile: <strong id="monthlyMotoQuota" style="color: var(--text);">60,00 €</strong> (consumabili, gomme, revisione, ricambi).
+      </p>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="manualVaultAdjust('moto', 1)">+ Aggiungi</button>
+        <button class="btn btn-danger" onclick="manualVaultAdjust('moto', -1)">- Paga Ricambi</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Chiusura Fine Mese</span></div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        A fine mese, premi qui per versare in automatico la quota del Fondo Imprevisti (+ l'eventuale risparmio non speso sulle variabili) e i 60 € della Moto nei due salvadanai storici, azzerando le spese settimanali per il nuovo mese.
+      </p>
+      <button class="btn btn-success" onclick="closeMonth()">Chiudi Mese e Accantona nei Salvadanai</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Backup Dati (iCloud / File JSON)</span></div>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="exportBackup()">Esporta Backup</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">Importa Backup</button>
+      </div>
+      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
+    </div>
+
+  </section>
+
+  <!-- BARRA DI NAVIGAZIONE INFERIORE NATIVA iOS -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('home', this)">
+      <span class="tab-icon">📊</span>
+      <span>Settimana</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('fixed', this)">
+      <span class="tab-icon">⚙️</span>
+      <span>Budget & Fisse</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('vaults', this)">
+      <span class="tab-icon">🛡️</span>
+      <span>Salvadanai</span>
+    </button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'andrea_finance_ios_v1';
+
+    const defaultState = {
+      income: 900,
+      currentWeek: 1,
+      vaults: {
+        emergency: 0,
+        moto: 0
+      },
+      fixedExpenses: [
+        { id: 'condominio', label: 'Tasse condominiali e bollette', amount: 350, paid: false },
+        { id: 'muaythai', label: 'Abbonamento Muay Thai', amount: 100, paid: false },
+        { id: 'moto', label: 'Moto (Accantonamento ricambi/gomme)', amount: 60, paid: false },
+        { id: 'benzina', label: 'Benzina (28 km/giorno)', amount: 50, paid: false },
+        { id: 'flixbus', label: 'FlixBus (Milano A/R bisettimanale)', amount: 35, paid: false },
+        { id: 'mensa', label: 'Mensa universitaria (8,50€ × 4)', amount: 34, paid: false }
+      ],
+      transactions: []
+    };
+
+    let state = loadState();
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(defaultState));
+        return Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
+      } catch (e) {
+        return JSON.parse(JSON.stringify(defaultState));
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function fmt(num) {
+      return Number(num).toFixed(2).replace('.', ',') + ' €';
+    }
+
+    // Calcolo dinamico dei budget in base alle entrate del mese
+    function calculateBudgets() {
+      const totalFixed = state.fixedExpenses.reduce((sum, item) => sum + Number(item.amount), 0);
+      const baseFood = 190;
+      const baseHome = 20;
+      const baseHealth = 15;
+      const baseSocial = 21;
+      const baseEmergency = 25;
+
+      const baseEssential = baseFood + baseHome + baseHealth; // 225 €
+      const rigidBreakEven = totalFixed + baseEssential; // 854 € con spese fisse standard
+      const standardTotal = rigidBreakEven + baseSocial + baseEmergency; // 900 €
+
+      let food = baseFood;
+      let home = baseHome;
+      let health = baseHealth;
+      let social = baseSocial;
+      let emergency = baseEmergency;
+      let modeText = 'Assetto Standard (900 €)';
+      let badgeText = 'In Pareggio';
+      let badgeColor = 'var(--green)';
+
+      const diffFromStandard = state.income - standardTotal;
+
+      if (diffFromStandard > 0) {
+        // Mese in Surplus: Regola 50% Imprevisti, 30% Uscite, 20% Alimentare
+        emergency += diffFromStandard * 0.50;
+        social += diffFromStandard * 0.30;
+        food += diffFromStandard * 0.20;
+        modeText = 'Surplus (+' + fmt(diffFromStandard) + '): Regola 50/30/20 attiva';
+        badgeText = 'Surplus';
+        badgeColor = 'var(--blue)';
+      } else if (diffFromStandard < 0) {
+        const deficit = Math.abs(diffFromStandard);
+        if (deficit <= baseEmergency) {
+          // Deficit lieve: riduce solo l'accantonamento mensile imprevisti
+          emergency = baseEmergency - deficit;
+          modeText = 'Deficit Lieve (-' + fmt(deficit) + '): Ridotta quota Imprevisti';
+          badgeText = 'Deficit Lieve';
+          badgeColor = 'var(--yellow)';
+        } else {
+          // Deficit critico: azzera quota imprevisti e riduce uscite
+          emergency = 0;
+          const remDeficit = deficit - baseEmergency;
+          if (remDeficit <= baseSocial) {
+            social = baseSocial - remDeficit;
+            modeText = 'Deficit (-' + fmt(deficit) + '): Quota Imprevisti 0€, Uscite ridotte';
+            badgeText = 'Attenzione';
+            badgeColor = 'var(--orange)';
+          } else {
+            social = 0;
+            const deepDeficit = remDeficit - baseSocial;
+            food = Math.max(0, baseFood - deepDeficit);
+            modeText = 'Sotto Punto di Pareggio (-' + fmt(deficit) + ')';
+            badgeText = 'Deficit Critico';
+            badgeColor = 'var(--red)';
+          }
+        }
+      }
+
+      const totalEssential = food + home + health;
+      return {
+        totalFixed,
+        food,
+        home,
+        health,
+        totalEssential,
+        social,
+        emergency,
+        modeText,
+        badgeText,
+        badgeColor
+      };
+    }
+
+    function renderAll() {
+      const b = calculateBudgets();
+
+      // Header
+      document.getElementById('ruleDescriptor').textContent = b.modeText;
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = b.badgeText;
+      badge.style.color = b.badgeColor;
+
+      // Panoramica
+      document.getElementById('incomeLabel').textContent = 'Entrate: ' + fmt(state.income);
+      document.getElementById('totFixedStat').textContent = Math.round(b.totalFixed) + ' €';
+      document.getElementById('totEssStat').textContent = Math.round(b.totalEssential) + ' €';
+      document.getElementById('totMarginStat').textContent = Math.round(b.social + b.emergency) + ' €';
+      document.getElementById('incomeInput').value = state.income;
+
+      // Spese variabili del mese (esclusi prelievi dai salvadanai)
+      const varTx = state.transactions.filter(t => ['spesa', 'casa', 'salute', 'uscite'].includes(t.category));
+      const totalVarSpent = varTx.reduce((s, t) => s + t.amount, 0);
+      const totalVarBudget = b.totalEssential + b.social;
+      const varPct = totalVarBudget > 0 ? Math.min(100, (totalVarSpent / totalVarBudget) * 100) : 100;
+
+      document.getElementById('monthlyVarLabel').textContent = fmt(totalVarSpent) + ' / ' + fmt(totalVarBudget);
+      const varBar = document.getElementById('monthlyVarBar');
+      varBar.style.width = varPct + '%';
+      varBar.style.background = totalVarSpent > totalVarBudget ? 'var(--red)' : (varPct > 85 ? 'var(--orange)' : 'var(--green)');
+
+      // Controllo Settimanale
+      document.querySelectorAll('.wNum').forEach(el => el.textContent = state.currentWeek);
+      document.getElementById('txWeek').value = state.currentWeek;
+
+      const weeklyEssAllowance = b.totalEssential / 4;
+      const weekEssSpent = state.transactions
+        .filter(t => t.week === state.currentWeek && ['spesa', 'casa', 'salute'].includes(t.category))
+        .reduce((s, t) => s + t.amount, 0);
+
+      const essPct = weeklyEssAllowance > 0 ? Math.min(100, (weekEssSpent / weeklyEssAllowance) * 100) : 100;
+      document.getElementById('weekEssText').textContent = fmt(weekEssSpent) + ' / ' + fmt(weeklyEssAllowance);
+      const wEssBar = document.getElementById('weekEssBar');
+      wEssBar.style.width = essPct + '%';
+      wEssBar.style.background = weekEssSpent > weeklyEssAllowance ? 'var(--red)' : 'var(--blue)';
+
+      // Calcolo Rollover Uscite Settimanali
+      const weeklySocBase = b.social / 4;
+      let cumulativeSocAllowed = weeklySocBase * state.currentWeek;
+      let spentBeforeCurrentWeek = state.transactions
+        .filter(t => t.week < state.currentWeek && t.category === 'uscite')
+        .reduce((s, t) => s + t.amount, 0);
+      let availableSocThisWeek = Math.max(0, cumulativeSocAllowed - spentBeforeCurrentWeek);
+
+      const weekSocSpent = state.transactions
+        .filter(t => t.week === state.currentWeek && t.category === 'uscite')
+        .reduce((s, t) => s + t.amount, 0);
+
+      const socPct = availableSocThisWeek > 0 ? Math.min(100, (weekSocSpent / availableSocThisWeek) * 100) : (weekSocSpent > 0 ? 100 : 0);
+      document.getElementById('weekSocText').textContent = fmt(weekSocSpent) + ' / ' + fmt(availableSocThisWeek);
+      const wSocBar = document.getElementById('weekSocBar');
+      wSocBar.style.width = socPct + '%';
+      wSocBar.style.background = weekSocSpent > availableSocThisWeek ? 'var(--red)' : 'var(--yellow)';
+
+      const rolloverDiff = availableSocThisWeek - weeklySocBase;
+      const rNote = document.getElementById('rolloverNote');
+      if (state.currentWeek > 1 && Math.abs(rolloverDiff) > 0.05) {
+        rNote.textContent = rolloverDiff > 0
+          ? 'Include +' + fmt(rolloverDiff) + ' risparmiati nelle settimane precedenti.'
+          : 'Tetto ridotto di ' + fmt(Math.abs(rolloverDiff)) + ' per sforamento precedente.';
+      } else {
+        rNote.textContent = 'Quota base: ' + fmt(weeklySocBase) + ' a settimana cumulabili.';
+      }
+
+      // Lista Movimenti
+      const txListEl = document.getElementById('txList');
+      if (state.transactions.length === 0) {
+        txListEl.innerHTML = '<div style="font-size:13px; color:var(--text-muted); text-align:center; padding:12px;">Nessuna spesa registrata questo mese.</div>';
+      } else {
+        const catNames = {
+          spesa: '🛒 Spesa Alimentare',
+          casa: '🏠 Casa e Igiene',
+          salute: '🩹 Salute e Integrazione',
+          uscite: '🍻 Uscite (Amici/Ragazza)',
+          moto_uso: '🏍️ Salvadanaio Moto (Uso)',
+          imprevisto_uso: '🚨 Fondo Imprevisti (Uso)'
+        };
+        txListEl.innerHTML = state.transactions.slice().reverse().map(t => `
+          <div class="list-item">
+            <div>
+              <div class="item-title">${t.note || catNames[t.category]}</div>
+              <div class="item-sub">${catNames[t.category]} • Sett. ${t.week} • ${t.date}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-weight:700;">-${fmt(t.amount)}</span>
+              <button class="del-btn" onclick="deleteTx(${t.id})">✕</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Tab 2: Ripartizione Allocazione
+      const spentByCat = (cat) => state.transactions.filter(t => t.category === cat).reduce((s, t) => s + t.amount, 0);
+      document.getElementById('allocationBreakdown').innerHTML = `
+        <div class="list-item"><span>🛒 Spesa Alimentare</span><strong>${fmt(spentByCat('spesa'))} / ${fmt(b.food)}</strong></div>
+        <div class="list-item"><span>🏠 Casa e Igiene</span><strong>${fmt(spentByCat('casa'))} / ${fmt(b.home)}</strong></div>
+        <div class="list-item"><span>🩹 Salute e Integrazione</span><strong>${fmt(spentByCat('salute'))} / ${fmt(b.health)}</strong></div>
+        <div class="list-item"><span>🍻 Uscite Amici + Ragazza</span><strong>${fmt(spentByCat('uscite'))} / ${fmt(b.social)}</strong></div>
+        <div class="list-item"><span style="color:var(--green);">🛡️ Quota Fondo Imprevisti Mese</span><strong style="color:var(--green);">${fmt(b.emergency)}</strong></div>
+      `;
+
+      // Tab 2: Lista Spese Fisse
+      const paidCount = state.fixedExpenses.filter(f => f.paid).length;
+      document.getElementById('fixedPaidStatus').textContent = `${paidCount}/${state.fixedExpenses.length} pagate`;
+      document.getElementById('fixedList').innerHTML = state.fixedExpenses.map((f, idx) => `
+        <div class="list-item">
+          <div class="list-left">
+            <div class="check-circle ${f.paid ? 'checked' : ''}" onclick="toggleFixed(${idx})">
+              ${f.paid ? '✓' : ''}
+            </div>
+            <div>
+              <div class="item-title" style="${f.paid ? 'text-decoration:line-through; color:var(--text-muted);' : ''}">${f.label}</div>
+            </div>
+          </div>
+          <input type="number" class="small-input" value="${f.amount}" onchange="updateFixedAmount(${idx}, this.value)" inputmode="decimal">
+        </div>
+      `).join('');
+
+      // Tab 3: Salvadanai
+      document.getElementById('vaultEmergencyVal').textContent = fmt(state.vaults.emergency);
+      document.getElementById('vaultMotoVal').textContent = fmt(state.vaults.moto);
+      document.getElementById('monthlyEmQuota').textContent = fmt(b.emergency);
+      const motoObj = state.fixedExpenses.find(f => f.id === 'moto');
+      document.getElementById('monthlyMotoQuota').textContent = fmt(motoObj ? motoObj.amount : 60);
+    }
+
+    function setWeek(w) {
+      state.currentWeek = w;
+      document.querySelectorAll('.week-pill').forEach((el, idx) => {
+        el.classList.toggle('active', idx + 1 === w);
+      });
+      saveState();
+    }
+
+    function addTransaction() {
+      const amountEl = document.getElementById('txAmount');
+      const noteEl = document.getElementById('txNote');
+      const cat = document.getElementById('txCategory').value;
+      const week = parseInt(document.getElementById('txWeek').value, 10);
+      const amount = parseFloat(amountEl.value);
+
+      if (isNaN(amount) || amount <= 0) {
+        alert('Inserisci un importo valido maggiore di 0.');
+        return;
+      }
+
+      if (cat === 'moto_uso') {
+        state.vaults.moto -= amount;
+      } else if (cat === 'imprevisto_uso') {
+        state.vaults.emergency -= amount;
+      }
+
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+
+      state.transactions.push({
+        id: Date.now(),
+        amount,
+        category: cat,
+        week,
+        note: noteEl.value.trim(),
+        date: dateStr
+      });
+
+      amountEl.value = '';
+      noteEl.value = '';
+      saveState();
+    }
+
+    function deleteTx(id) {
+      const tx = state.transactions.find(t => t.id === id);
+      if (!tx) return;
+      if (tx.category === 'moto_uso') state.vaults.moto += tx.amount;
+      if (tx.category === 'imprevisto_uso') state.vaults.emergency += tx.amount;
+      state.transactions = state.transactions.filter(t => t.id !== id);
+      saveState();
+    }
+
+    function updateIncome() {
+      const val = parseFloat(document.getElementById('incomeInput').value);
+      if (!isNaN(val) && val >= 0) {
+        state.income = val;
+        saveState();
+      }
+    }
+
+    function toggleFixed(idx) {
+      state.fixedExpenses[idx].paid = !state.fixedExpenses[idx].paid;
+      saveState();
+    }
+
+    function updateFixedAmount(idx, val) {
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 0) {
+        state.fixedExpenses[idx].amount = num;
+        saveState();
+      }
+    }
+
+    function manualVaultAdjust(vaultKey, sign) {
+      const label = vaultKey === 'emergency' ? 'Fondo Imprevisti' : 'Salvadanaio Moto';
+      const raw = prompt(`Inserisci l'importo da ${sign > 0 ? 'aggiungere a' : 'prelevare da'} ${label} (€):`);
+      if (!raw) return;
+      const val = parseFloat(raw.replace(',', '.'));
+      if (!isNaN(val) && val > 0) {
+        state.vaults[vaultKey] += sign * val;
+        saveState();
+      }
+    }
+
+    function closeMonth() {
+      const b = calculateBudgets();
+      const motoObj = state.fixedExpenses.find(f => f.id === 'moto');
+      const motoQuota = motoObj ? Number(motoObj.amount) : 60;
+
+      const varTx = state.transactions.filter(t => ['spesa', 'casa', 'salute', 'uscite'].includes(t.category));
+      const totalVarSpent = varTx.reduce((s, t) => s + t.amount, 0);
+      const totalVarBudget = b.totalEssential + b.social;
+      const unspentSavings = totalVarBudget - totalVarSpent;
+
+      const totalToEmergency = b.emergency + unspentSavings;
+
+      const msg = `Riepilogo Chiusura Mese:\n` +
+        `• Quota Fondo Imprevisti: ${fmt(b.emergency)}\n` +
+        `• Avanzo/Sforamento spese variabili: ${fmt(unspentSavings)}\n` +
+        `• Totale aggiunto al Fondo Imprevisti: ${fmt(totalToEmergency)}\n` +
+        `• Quota aggiunta al Salvadanaio Moto: ${fmt(motoQuota)}\n\n` +
+        `Confermi la chiusura del mese e l'azzeramento delle spese settimanali?`;
+
+      if (confirm(msg)) {
+        state.vaults.emergency += totalToEmergency;
+        state.vaults.moto += motoQuota;
+        state.transactions = [];
+        state.fixedExpenses.forEach(f => f.paid = false);
+        state.currentWeek = 1;
+        saveState();
+        alert('Mese archiviato con successo! I salvadanai sono stati aggiornati.');
+      }
+    }
+
+    function exportBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "backup_finanze_iphone.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && typeof imported.income === 'number') {
+            state = imported;
+            saveState();
+            alert('Backup ripristinato con successo!');
+          }
+        } catch (err) {
+          alert('File JSON non valido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
