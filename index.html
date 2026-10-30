@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finanze">
+  <meta name="theme-color" content="#000000">
+  <title>Finanze & Calendario</title>
+
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='42' fill='%231c1c1e'/><circle cx='90' cy='90' r='62' fill='none' stroke='%2330d158' stroke-width='14'/><text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='-apple-system, sans-serif' font-size='64' font-weight='bold'>€</text></svg>">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --card: #1c1c1e;
+      --card-elevated: #2c2c2e;
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --blue: #0a84ff;
+      --green: #30d158;
+      --yellow: #ffd60a;
+      --orange: #ff9f0a;
+      --red: #ff453a;
+      --purple: #bf5af2;
+      --teal: #64d2ff;
+      --border: #38383a;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding-top: calc(env(safe-area-inset-top) + 10px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 92px);
+      padding-left: 15px;
+      padding-right: 15px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+    }
+
+    /* Barra Selettore Mese */
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      border-radius: 14px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .month-nav-btn {
+      background: var(--card-elevated);
+      border: none;
+      color: var(--text);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .month-nav-center {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .month-title {
+      font-size: 17px;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .month-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .badge-status {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: var(--card-elevated);
+      white-space: nowrap;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat-box {
+      background: var(--card-elevated);
+      padding: 11px 10px;
+      border-radius: 12px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .progress-wrap {
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 9px;
+      background: var(--card-elevated);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.25s ease, background-color 0.25s ease;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--card-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      margin-bottom: 10px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 12px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+
+    .btn:active {
+      opacity: 0.7;
+    }
+
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-success { background: var(--green); color: #000; }
+    .btn-warning { background: var(--orange); color: #000; }
+    .btn-danger  { background: rgba(255, 69, 58, 0.18); color: var(--red); }
+    .btn-ghost   { background: var(--card-elevated); color: var(--text); }
+
+    .week-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .week-pill {
+      background: var(--card-elevated);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 8px 4px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .week-pill.active {
+      background: rgba(10, 132, 255, 0.2);
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .check-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .check-circle.checked {
+      background: var(--green);
+      border-color: var(--green);
+      color: #000;
+      font-weight: 900;
+    }
+
+    .item-title {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 14px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .small-input {
+      width: 82px;
+      padding: 6px 8px;
+      font-size: 14px;
+      margin-bottom: 0;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Calendario Grid */
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .cal-day {
+      background: var(--card-elevated);
+      border-radius: 10px;
+      min-height: 48px;
+      padding: 5px 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+    }
+
+    .cal-day.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .cal-day.today {
+      border-color: var(--text-muted);
+    }
+
+    .cal-day.selected {
+      background: rgba(10, 132, 255, 0.22);
+      border-color: var(--blue);
+    }
+
+    .cal-day-num {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cal-day-amt {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--teal);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cal-dot-row {
+      display: flex;
+      gap: 2px;
+      height: 5px;
+      align-items: center;
+    }
+
+    .cal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    /* Toast feedback */
+    #toast {
+      position: fixed;
+      top: calc(env(safe-area-inset-top) + 14px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #30d158;
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 99px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 999;
+      transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+      text-align: center;
+      max-width: 90%;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Tab Bar Inferiore (4 Schede) */
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(28, 28, 30, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding-top: 8px;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 6px);
+      z-index: 100;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+    }
+
+    .tab-icon {
+      font-size: 19px;
+    }
+
+    .tab-section {
+      display: none;
+    }
+
+    .tab-section.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast">Salvato!</div>
+
+  <!-- SELETTORE MESE GLOBALE -->
+  <div class="month-nav">
+    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="month-nav-center" onclick="jumpToCurrentMonth()">
+      <div class="month-title" id="navMonthTitle">Ottobre 2026</div>
+      <div class="month-sub" id="navMonthSub">Tocca per tornare al mese corrente</div>
+    </div>
+    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <header>
+    <div style="font-size: 12px; color: var(--text-muted);" id="ruleDescriptor">Assetto Standard (900 €)</div>
+    <span class="badge-status" id="statusBadge">In Pareggio</span>
+  </header>
+
+  <!-- TAB 1: OGGI & SPESE SETTIMANALI -->
+  <section id="tab-home" class="tab-section active">
+
+    <!-- Panoramica Mese -->
+    <div class="card">
+      <div class="card-title">
+        <span>Riepilogo Mese</span>
+        <span id="incomeLabel" style="color: var(--blue);">Entrate: 900,00 €</span>
+      </div>
+      <div class="grid-3">
+        <div class="stat-box">
+          <div class="stat-label">Fisse (2 voci)</div>
+          <div class="stat-val" id="totFixedStat">450 €</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Budget Variabili</div>
+          <div class="stat-val" id="totVarStat">425 €</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Imprevisti</div>
+          <div class="stat-val" id="totEmStat" style="color: var(--green);">25 €</div>
+        </div>
+      </div>
+
+      <div class="progress-wrap" style="margin-top: 14px;">
+        <div class="progress-header">
+          <span>Totale Variabili spese nel mese</span>
+          <span id="monthlyVarLabel">0,00 € / 425,00 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="monthlyVarBar" class="progress-bar-fill" style="width: 0%; background: var(--green);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controllo Tetti Settimanali -->
+    <div class="card">
+      <div class="card-title">
+        <span>Controllo Settimanale Anti-Sforamento</span>
+      </div>
+      <div class="week-pills">
+        <div class="week-pill active" id="wp-1" onclick="setWeek(1)">Sett. 1<br><span style="font-size:9px; font-weight:400;">gg 1-7</span></div>
+        <div class="week-pill" id="wp-2" onclick="setWeek(2)">Sett. 2<br><span style="font-size:9px; font-weight:400;">gg 8-14</span></div>
+        <div class="week-pill" id="wp-3" onclick="setWeek(3)">Sett. 3<br><span style="font-size:9px; font-weight:400;">gg 15-21</span></div>
+        <div class="week-pill" id="wp-4" onclick="setWeek(4)">Sett. 4+<br><span style="font-size:9px; font-weight:400;">gg 22-31</span></div>
+      </div>
+
+      <!-- 1. Spesa + Casa + Salute -->
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span>Spesa + Casa + Salute (Sett. <span class="wNum">1</span>)</span>
+          <span id="weekEssText">0,00 € / 56,25 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="weekEssBar" class="progress-bar-fill" style="width: 0%; background: var(--blue);"></div>
+        </div>
+      </div>
+
+      <!-- 2. Mobilità + Mensa -->
+      <div class="progress-wrap" style="margin-top: 12px;">
+        <div class="progress-header">
+          <span>Mobilità, Moto e Mensa (Sett. <span class="wNum">1</span>)</span>
+          <span id="weekMobText">0,00 € / 44,75 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="weekMobBar" class="progress-bar-fill" style="width: 0%; background: var(--teal);"></div>
+        </div>
+      </div>
+
+      <!-- 3. Uscite Settimanali con Rollover -->
+      <div class="progress-wrap" style="margin-top: 12px;">
+        <div class="progress-header">
+          <span>Uscite Amici + Ragazza (Sett. <span class="wNum">1</span>)</span>
+          <span id="weekSocText">0,00 € / 5,25 €</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="weekSocBar" class="progress-bar-fill" style="width: 0%; background: var(--yellow);"></div>
+        </div>
+        <div id="rolloverNote" style="font-size: 11px; color: var(--text-muted); margin-top: 5px;"></div>
+      </div>
+    </div>
+
+    <!-- Registra Spesa (anche per mesi successivi) -->
+    <div class="card" id="quickAddCard">
+      <div class="card-title">
+        <span>Inserisci Spesa o Pagamento Futuro</span>
+      </div>
+      <div class="grid-2">
+        <input type="text" id="txAmount" placeholder="Importo (es. 12,50)" inputmode="decimal">
+        <input type="date" id="txDate" onchange="syncDateHint()">
+      </div>
+      <div id="dateTargetHint" style="font-size: 11px; color: var(--teal); margin-top: -4px; margin-bottom: 10px;"></div>
+
+      <select id="txCategory">
+        <optgroup label="Consumi Essenziali (Variabili)">
+          <option value="spesa">🛒 Spesa Alimentare (Base: 190€)</option>
+          <option value="casa">🏠 Casa e Igiene Personale (Base: 20€)</option>
+          <option value="salute">🩹 Salute, Integrazione e Traumi (Base: 15€)</option>
+        </optgroup>
+        <optgroup label="Mobilità, Mensa e Vita Sociale (Variabili)">
+          <option value="moto">🏍️ Moto: Manutenzione / Ricambi (Base: 60€)</option>
+          <option value="benzina">⛽ Benzina 28 km/gg (Base: 50€)</option>
+          <option value="viaggi">🚆 Viaggi treno/bus/bici (Base: 35€)</option>
+          <option value="mensa">🍽️ Mensa universitaria (Base: 34€)</option>
+          <option value="uscite">🍻 Uscite Amici + Ragazza (Base: 21€)</option>
+        </optgroup>
+        <optgroup label="Prelievo da Salvadanai Storici">
+          <option value="moto_uso">🔧 Preleva da Salvadanaio Storico Moto</option>
+          <option value="imprevisto_uso">🚨 Preleva da Fondo Imprevisti Puri</option>
+        </optgroup>
+      </select>
+
+      <input type="text" id="txNote" placeholder="Descrizione (es. Treno Milano, Spesa, Tagliando...)">
+      <button class="btn btn-primary" onclick="addTransaction()">+ Salva Pagamento</button>
+    </div>
+
+    <!-- Movimenti del Mese Selezionato -->
+    <div class="card">
+      <div class="card-title">
+        <span>Movimenti del Mese</span>
+        <span id="txCountBadge">0 voci</span>
+      </div>
+      <div id="txList"></div>
+    </div>
+
+  </section>
+
+  <!-- TAB 2: CALENDARIO & PAGAMENTI FUTURI -->
+  <section id="tab-calendar" class="tab-section">
+
+    <div class="card">
+      <div class="card-title">
+        <span>Calendario Mensile</span>
+        <span id="calMonthLabel" style="color: var(--blue);"></span>
+      </div>
+      <div class="cal-weekdays">
+        <div>LUN</div><div>MAR</div><div>MER</div><div>GIO</div><div>VEN</div><div>SAB</div><div>DOM</div>
+      </div>
+      <div class="cal-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Dettaglio Giorno Selezionato -->
+    <div class="card">
+      <div class="card-title">
+        <span id="selectedDayTitle">Giorno Selezionato</span>
+        <button class="btn btn-primary" style="width:auto; padding: 5px 10px; font-size: 11px; border-radius: 8px;" onclick="preparePaymentOnSelectedDate()">+ Pagamento in questa data</button>
+      </div>
+      <div id="selectedDayList"></div>
+    </div>
+
+    <!-- Pagamenti Programmati nei Mesi Futuri -->
+    <div class="card" style="border-color: rgba(100, 210, 255, 0.3);">
+      <div class="card-title">
+        <span style="color: var(--teal);">Pagamenti Futuri Programmati</span>
+        <span id="futureCountBadge">0</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        Elenco di tutti i pagamenti inseriti con data successiva a oggi (inclusi i mesi futuri).
+      </p>
+      <div id="futureTxList"></div>
+    </div>
+
+  </section>
+
+  <!-- TAB 3: BUDGET, SPESE FISSE (2 VOCI) E VARIABILI (8 VOCI) -->
+  <section id="tab-budget" class="tab-section">
+
+    <div class="card">
+      <div class="card-title"><span>Entrate del Mese Selezionato</span></div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        Di base 900,00 €. Se questo mese guadagni di più o di meno, modifica il valore: il surplus viene diviso con la regola 50% Imprevisti / 30% Uscite / 20% Spesa.
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="incomeInput" inputmode="decimal" style="margin-bottom:0;" placeholder="900">
+        <button class="btn btn-primary" style="width: auto; padding: 0 18px;" onclick="updateIncome()">Aggiorna</button>
+      </div>
+    </div>
+
+    <!-- Spese Fisse e Obbligatorie (SOLO Condominio e Muay Thai) -->
+    <div class="card">
+      <div class="card-title">
+        <span>Spese Fisse e Obbligatorie (450 €)</span>
+        <span id="fixedPaidStatus">0/2 pagate</span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+        Tocca il cerchio per segnare la spesa fissa come saldata nel mese selezionato.
+      </p>
+      <div id="fixedList"></div>
+    </div>
+
+    <!-- Dettaglio Tetti Spese Variabili -->
+    <div class="card">
+      <div class="card-title">
+        <span>Spese Variabili del Mese (8 Categorie)</span>
+        <button onclick="resetVariableBudgets()" style="background:none; border:none; color:var(--blue); font-size:11px; font-weight:600; cursor:pointer;">Ripristina default</button>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        Monitora quanto hai speso per ciascuna voce variabile rispetto al budget mensile previsto (puoi anche modificare i singoli budget base).
+      </p>
+      <div id="variableBudgetsList"></div>
+    </div>
+
+  </section>
+
+  <!-- TAB 4: SALVADANAI STORICI & BACKUP -->
+  <section id="tab-vaults" class="tab-section">
+
+    <div class="card" style="border-color: rgba(48, 209, 88, 0.35);">
+      <div class="card-title">
+        <span style="color: var(--green);">Salvadanaio 1: Fondo Imprevisti Puri</span>
+        <span>Emergenze</span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 6px;" id="vaultEmergencyVal">0,00 €</div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        Quota prevista nel mese selezionato: <strong id="monthlyEmQuota" style="color: var(--text);">25,00 €</strong>. Si accumula mese dopo mese per emergenze pure.
+      </p>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="manualVaultAdjust('emergency', 1)">+ Deposita</button>
+        <button class="btn btn-danger" onclick="manualVaultAdjust('emergency', -1)">- Preleva</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color: rgba(10, 132, 255, 0.35);">
+      <div class="card-title">
+        <span style="color: var(--blue);">Salvadanaio 2: Fondo Storico Moto</span>
+        <span>Ricambi / Gomme / Revisione</span>
+      </div>
+      <div style="font-size: 32px; font-weight: 800; margin-bottom: 6px;" id="vaultMotoVal">0,00 €</div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        Rimanenza budget Moto di questo mese da accantonare: <strong id="monthlyMotoRem" style="color: var(--text);">60,00 €</strong>.
+      </p>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="manualVaultAdjust('moto', 1)">+ Deposita</button>
+        <button class="btn btn-danger" onclick="manualVaultAdjust('moto', -1)">- Usa per Moto</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Contabilizzazione Fine Mese</span>
+        <span id="monthClosedTag"></span>
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+        A fine mese trasferisce la quota del Fondo Imprevisti (+ l'eventuale risparmio sulle spese variabili) e la quota Moto non spesa nei Salvadanai Storici, mantenendo intatto lo storico dei movimenti nel calendario.
+      </p>
+      <button class="btn btn-success" id="closeMonthBtn" onclick="closeCurrentMonth()">Contabilizza e Chiudi Mese</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>Backup Dati (JSON / iCloud Drive)</span></div>
+      <div class="grid-2">
+        <button class="btn btn-ghost" onclick="exportBackup()">Esporta Backup</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('importFile').click()">Importa Backup</button>
+      </div>
+      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importBackup(event)">
+    </div>
+
+  </section>
+
+  <!-- BARRA DI NAVIGAZIONE INFERIORE -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" id="tabbtn-home" onclick="switchTab('home', this)">
+      <span class="tab-icon">📊</span>
+      <span>Spese</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-calendar" onclick="switchTab('calendar', this)">
+      <span class="tab-icon">📅</span>
+      <span>Calendario</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-budget" onclick="switchTab('budget', this)">
+      <span class="tab-icon">⚙️</span>
+      <span>Budget</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-vaults" onclick="switchTab('vaults', this)">
+      <span class="tab-icon">🛡️</span>
+      <span>Salvadanai</span>
+    </button>
+  </nav>
+
+  <script>
+    const STORAGE_KEY_V2 = 'andrea_finance_ios_v2';
+    const STORAGE_KEY_V1 = 'andrea_finance_ios_v1';
+
+    const DEFAULT_FIXED = [
+      { id: 'condominio', label: 'Tasse condominiali e bollette', amount: 350 },
+      { id: 'muaythai', label: 'Abbonamento Muay Thai', amount: 100 }
+    ];
+
+    const DEFAULT_VAR_BUDGETS = {
+      spesa: 190,
+      moto: 60,
+      benzina: 50,
+      viaggi: 35,
+      mensa: 34,
+      casa: 20,
+      salute: 15,
+      uscite: 21
+    };
+
+    const CATEGORY_META = {
+      spesa:          { label: '🛒 Spesa Alimentare', group: 'ess', color: 'var(--blue)' },
+      casa:           { label: '🏠 Casa e Igiene Personale', group: 'ess', color: 'var(--blue)' },
+      salute:         { label: '🩹 Salute, Integrazione e Traumi', group: 'ess', color: 'var(--blue)' },
+      moto:           { label: '🏍️ Moto (Manutenzione/Ricambi)', group: 'mob', color: 'var(--teal)' },
+      benzina:        { label: '⛽ Benzina (28 km/giorno)', group: 'mob', color: 'var(--teal)' },
+      viaggi:         { label: '🚆 Viaggi treno/bus/bici', group: 'mob', color: 'var(--teal)' },
+      mensa:          { label: '🍽️ Mensa universitaria', group: 'mob', color: 'var(--teal)' },
+      uscite:         { label: '🍻 Uscite (Amici + Ragazza)', group: 'soc', color: 'var(--yellow)' },
+      moto_uso:       { label: '🔧 Prelievo Salvadanaio Moto', group: 'vault', color: 'var(--orange)' },
+      imprevisto_uso: { label: '🚨 Prelievo Fondo Imprevisti', group: 'vault', color: 'var(--red)' }
+    };
+
+    function getTodayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getMonthKeyFromDate(isoDate) {
+      return isoDate.slice(0, 7); // "YYYY-MM"
+    }
+
+    function getWeekFromDate(isoDate) {
+      const day = parseInt(isoDate.slice(8, 10), 10) || 1;
+      return Math.min(4, Math.ceil(day / 7));
+    }
+
+    function parseEuro(val) {
+      if (typeof val === 'number') return val;
+      if (!val) return NaN;
+      const clean = String(val).trim().replace(',', '.').replace(/[^0-9.-]/g, '');
+      return parseFloat(clean);
+    }
+
+    function fmt(num) {
+      return Number(num || 0).toFixed(2).replace('.', ',') + ' €';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    const todayISO = getTodayISO();
+    let activeMonthKey = getMonthKeyFromDate(todayISO);
+    let activeWeek = getWeekFromDate(todayISO);
+    let selectedCalendarDate = todayISO;
+
+    let state = loadState();
+
+    function createDefaultMonthConfig() {
+      return {
+        income: 900,
+        fixedExpenses: JSON.parse(JSON.stringify(DEFAULT_FIXED)).map(f => ({ ...f, paid: false })),
+        varBudgets: { ...DEFAULT_VAR_BUDGETS },
+        closed: false,
+        closedSummary: null
+      };
+    }
+
+    function loadState() {
+      try {
+        const rawV2 = localStorage.getItem(STORAGE_KEY_V2);
+        if (rawV2) {
+          const parsed = JSON.parse(rawV2);
+          if (!parsed.months) parsed.months = {};
+          if (!parsed.transactions) parsed.transactions = [];
+          if (!parsed.vaults) parsed.vaults = { emergency: 0, moto: 0 };
+          return parsed;
+        }
+
+        // Migrazione automatica eventuale da v1
+        const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
+        const initial = {
+          vaults: { emergency: 0, moto: 0 },
+          months: {},
+          transactions: []
+        };
+
+        if (rawV1) {
+          const v1 = JSON.parse(rawV1);
+          if (v1.vaults) initial.vaults = v1.vaults;
+          initial.months[activeMonthKey] = createDefaultMonthConfig();
+          if (typeof v1.income === 'number') initial.months[activeMonthKey].income = v1.income;
+          if (Array.isArray(v1.transactions)) {
+            v1.transactions.forEach(t => {
+              initial.transactions.push({
+                id: t.id || Date.now() + Math.random(),
+                amount: Number(t.amount) || 0,
+                category: t.category === 'flixbus' ? 'viaggi' : (t.category || 'spesa'),
+                date: todayISO,
+                monthKey: activeMonthKey,
+                week: t.week || activeWeek,
+                note: t.note || ''
+              });
+            });
+          }
+        }
+        return initial;
+      } catch (e) {
+        return {
+          vaults: { emergency: 0, moto: 0 },
+          months: {},
+          transactions: []
+        };
+      }
+    }
+
+    function ensureMonthExists(monthKey) {
+      if (!state.months[monthKey]) {
+        state.months[monthKey] = createDefaultMonthConfig();
+      } else {
+        const m = state.months[monthKey];
+        if (!m.varBudgets) m.varBudgets = { ...DEFAULT_VAR_BUDGETS };
+        if (!m.fixedExpenses || m.fixedExpenses.length !== 2) {
+          m.fixedExpenses = JSON.parse(JSON.stringify(DEFAULT_FIXED)).map(f => ({ ...f, paid: false }));
+        }
+      }
+      return state.months[monthKey];
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY_V2, JSON.stringify(state));
+      renderAll();
+    }
+
+    function formatMonthTitle(monthKey) {
+      const [y, m] = monthKey.split('-').map(Number);
+      const d = new Date(y, m - 1, 1);
+      return d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+    }
+
+    function changeMonth(delta) {
+      const [y, m] = activeMonthKey.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      const ny = d.getFullYear();
+      const nm = String(d.getMonth() + 1).padStart(2, '0');
+      activeMonthKey = `${ny}-${nm}`;
+      ensureMonthExists(activeMonthKey);
+
+      if (activeMonthKey === getMonthKeyFromDate( getTodayISO() )) {
+        selectedCalendarDate = getTodayISO();
+        activeWeek = getWeekFromDate(selectedCalendarDate);
+      } else {
+        selectedCalendarDate = `${activeMonthKey}-01`;
+        activeWeek = 1;
+      }
+      document.getElementById('txDate').value = selectedCalendarDate;
+      saveState();
+    }
+
+    function jumpToCurrentMonth() {
+      const nowISO = getTodayISO();
+      activeMonthKey = getMonthKeyFromDate(nowISO);
+      selectedCalendarDate = nowISO;
+      activeWeek = getWeekFromDate(nowISO);
+      document.getElementById('txDate').value = nowISO;
+      saveState();
+    }
+
+    // Calcolo dinamico budget del mese selezionato
+    function calculateMonthBudgets(monthKey) {
+      const mCfg = ensureMonthExists(monthKey);
+      const totalFixed = mCfg.fixedExpenses.reduce((s, f) => s + Number(f.amount), 0); // 450 € base
+
+      const vb = { ...mCfg.varBudgets };
+      const baseVarTotal = Object.values(vb).reduce((s, v) => s + Number(v), 0); // 425 € base
+      const baseEmergency = 25;
+
+      const standardTarget = totalFixed + baseVarTotal + baseEmergency; // 900 €
+      const diff = mCfg.income - standardTarget;
+
+      let emergency = baseEmergency;
+      let modeText = `Assetto Standard (${fmt(mCfg.income)})`;
+      let badgeText = mCfg.closed ? 'Mese Chiuso ✓' : 'In Pareggio';
+      let badgeColor = mCfg.closed ? 'var(--teal)' : 'var(--green)';
+
+      if (diff > 0) {
+        // Surplus: 50% Imprevisti, 30% Uscite, 20% Spesa Alimentare
+        emergency += diff * 0.50;
+        vb.uscite += diff * 0.30;
+        vb.spesa += diff * 0.20;
+        modeText = `Surplus (+${fmt(diff)}): Regola 50/30/20 attiva`;
+        if (!mCfg.closed) { badgeText = 'Surplus'; badgeColor = 'var(--blue)'; }
+      } else if (diff < 0) {
+        const deficit = Math.abs(diff);
+        if (deficit <= baseEmergency) {
+          emergency = baseEmergency - deficit;
+          modeText = `Deficit Lieve (-${fmt(deficit)}): Ridotta quota Imprevisti`;
+          if (!mCfg.closed) { badgeText = 'Deficit Lieve'; badgeColor = 'var(--yellow)'; }
+        } else {
+          emergency = 0;
+          const rem = deficit - baseEmergency;
+          if (rem <= vb.uscite) {
+            vb.uscite -= rem;
+            modeText = `Deficit (-${fmt(deficit)}): Azzerati Imprevisti, ridotte Uscite`;
+            if (!mCfg.closed) { badgeText = 'Attenzione'; badgeColor = 'var(--orange)'; }
+          } else {
+            const afterSoc = rem - vb.uscite;
+            vb.uscite = 0;
+            vb.spesa = Math.max(0, vb.spesa - afterSoc);
+            modeText = `Sotto Pareggio Rigido (-${fmt(deficit)})`;
+            if (!mCfg.closed) { badgeText = 'Deficit Critico'; badgeColor = 'var(--red)'; }
+          }
+        }
+      }
+
+      const essBudget = vb.spesa + vb.casa + vb.salute;
+      const mobBudget = vb.moto + vb.benzina + vb.viaggi + vb.mensa;
+      const socBudget = vb.uscite;
+      const totalVarBudget = essBudget + mobBudget + socBudget;
+
+      return {
+        income: mCfg.income,
+        totalFixed,
+        vb,
+        essBudget,
+        mobBudget,
+        socBudget,
+        totalVarBudget,
+        emergency,
+        modeText,
+        badgeText,
+        badgeColor,
+        closed: mCfg.closed
+      };
+    }
+
+    function syncDateHint() {
+      const dateVal = document.getElementById('txDate').value || getTodayISO();
+      const mKey = getMonthKeyFromDate(dateVal);
+      const w = getWeekFromDate(dateVal);
+      const hintEl = document.getElementById('dateTargetHint');
+      if (mKey !== activeMonthKey) {
+        hintEl.textContent = `📅 Verrà registrato in ${formatMonthTitle(mKey)} (Settimana ${w})`;
+        hintEl.style.color = 'var(--yellow)';
+      } else {
+        hintEl.textContent = `Assegnato a ${formatMonthTitle(mKey)} • Settimana ${w}`;
+        hintEl.style.color = 'var(--text-muted)';
+      }
+    }
+
+    function renderAll() {
+      const mCfg = ensureMonthExists(activeMonthKey);
+      const b = calculateMonthBudgets(activeMonthKey);
+
+      // Barra Mese
+      document.getElementById('navMonthTitle').textContent = formatMonthTitle(activeMonthKey);
+      const isCurrentMonth = activeMonthKey === getMonthKeyFromDate(getTodayISO());
+      document.getElementById('navMonthSub').textContent = isCurrentMonth
+        ? 'Mese attuale'
+        : 'Tocca qui per tornare ad oggi';
+
+      // Header stato
+      document.getElementById('ruleDescriptor').textContent = b.modeText;
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = b.badgeText;
+      badge.style.color = b.badgeColor;
+
+      // Riquadro Panoramica
+      document.getElementById('incomeLabel').textContent = 'Entrate: ' + fmt(b.income);
+      document.getElementById('totFixedStat').textContent = Math.round(b.totalFixed) + ' €';
+      document.getElementById('totVarStat').textContent = Math.round(b.totalVarBudget) + ' €';
+      document.getElementById('totEmStat').textContent = Math.round(b.emergency) + ' €';
+      document.getElementById('incomeInput').value = String(b.income).replace('.', ',');
+
+      // Transazioni del mese selezionato
+      const monthTxs = state.transactions
+        .filter(t => t.monthKey === activeMonthKey)
+        .sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+
+      const varCategories = Object.keys(DEFAULT_VAR_BUDGETS);
+      const monthVarSpent = monthTxs
+        .filter(t => varCategories.includes(t.category))
+        .reduce((s, t) => s + t.amount, 0);
+
+      const varPct = b.totalVarBudget > 0 ? Math.min(100, (monthVarSpent / b.totalVarBudget) * 100) : 100;
+      document.getElementById('monthlyVarLabel').textContent = `${fmt(monthVarSpent)} / ${fmt(b.totalVarBudget)}`;
+      const varBar = document.getElementById('monthlyVarBar');
+      varBar.style.width = varPct + '%';
+      varBar.style.background = monthVarSpent > b.totalVarBudget ? 'var(--red)' : (varPct > 85 ? 'var(--orange)' : 'var(--green)');
+
+      // Pillole Settimana
+      for (let i = 1; i <= 4; i++) {
+        const pill = document.getElementById('wp-' + i);
+        if (pill) pill.classList.toggle('active', i === activeWeek);
+      }
+      document.querySelectorAll('.wNum').forEach(el => el.textContent = activeWeek);
+
+      // 1. Settimana Spesa + Casa + Salute
+      const weekEssTarget = b.essBudget / 4;
+      const weekEssSpent = monthTxs
+        .filter(t => t.week === activeWeek && ['spesa', 'casa', 'salute'].includes(t.category))
+        .reduce((s, t) => s + t.amount, 0);
+      const essPct = weekEssTarget > 0 ? Math.min(100, (weekEssSpent / weekEssTarget) * 100) : 100;
+      document.getElementById('weekEssText').textContent = `${fmt(weekEssSpent)} / ${fmt(weekEssTarget)}`;
+      const wEssBar = document.getElementById('weekEssBar');
+      wEssBar.style.width = essPct + '%';
+      wEssBar.style.background = weekEssSpent > weekEssTarget ? 'var(--red)' : 'var(--blue)';
+
+      // 2. Settimana Mobilità (Moto, Benzina, Viaggi treno/bus/bici) + Mensa
+      const weekMobTarget = b.mobBudget / 4;
+      const weekMobSpent = monthTxs
+        .filter(t => t.week === activeWeek && ['moto', 'benzina', 'viaggi', 'mensa'].includes(t.category))
+        .reduce((s, t) => s + t.amount, 0);
+      const mobPct = weekMobTarget > 0 ? Math.min(100, (weekMobSpent / weekMobTarget) * 100) : 100;
+      document.getElementById('weekMobText').textContent = `${fmt(weekMobSpent)} / ${fmt(weekMobTarget)}`;
+      const wMobBar = document.getElementById('weekMobBar');
+      wMobBar.style.width = mobPct + '%';
+      wMobBar.style.background = weekMobSpent > weekMobTarget ? 'var(--red)' : 'var(--teal)';
+
+      // 3. Settimana Uscite con Rollover
+      const weekSocBase = b.socBudget / 4;
+      const cumSocAllowed = weekSocBase * activeWeek;
+      const spentBeforeWeek = monthTxs
+        .filter(t => t.week < activeWeek && t.category === 'uscite')
+        .reduce((s, t) => s + t.amount, 0);
+      const availSocWeek = Math.max(0, cumSocAllowed - spentBeforeWeek);
+      const weekSocSpent = monthTxs
+        .filter(t => t.week === activeWeek && t.category === 'uscite')
+        .reduce((s, t) => s + t.amount, 0);
+      const socPct = availSocWeek > 0 ? Math.min(100, (weekSocSpent / availSocWeek) * 100) : (weekSocSpent > 0 ? 100 : 0);
+      document.getElementById('weekSocText').textContent = `${fmt(weekSocSpent)} / ${fmt(availSocWeek)}`;
+      const wSocBar = document.getElementById('weekSocBar');
+      wSocBar.style.width = socPct + '%';
+      wSocBar.style.background = weekSocSpent > availSocWeek ? 'var(--red)' : 'var(--yellow)';
+
+      const rolloverDiff = availSocWeek - weekSocBase;
+      const rNote = document.getElementById('rolloverNote');
+      if (activeWeek > 1 && Math.abs(rolloverDiff) > 0.05) {
+        rNote.textContent = rolloverDiff > 0
+          ? `Include +${fmt(rolloverDiff)} cumulati dalle settimane precedenti.`
+          : `Tetto ridotto di ${fmt(Math.abs(rolloverDiff))} per sforamento precedente.`;
+      } else {
+        rNote.textContent = `Quota base: ${fmt(weekSocBase)} a settimana cumulabili.`;
+      }
+
+      // Hint Data
+      syncDateHint();
+
+      // Lista Movimenti del Mese
+      document.getElementById('txCountBadge').textContent = `${monthTxs.length} voci`;
+      const txListEl = document.getElementById('txList');
+      if (monthTxs.length === 0) {
+        txListEl.innerHTML = '<div style="font-size:13px; color:var(--text-muted); text-align:center; padding:12px;">Nessun pagamento registrato in questo mese.</div>';
+      } else {
+        txListEl.innerHTML = monthTxs.map(t => renderTxRow(t)).join('');
+      }
+
+      // Render Calendario & Pagamenti Futuri
+      renderCalendar(activeMonthKey, monthTxs);
+      renderFuturePayments();
+
+      // Render Tab Budget (Spese Fisse 2 voci + 8 Spese Variabili)
+      const paidCount = mCfg.fixedExpenses.filter(f => f.paid).length;
+      document.getElementById('fixedPaidStatus').textContent = `${paidCount}/${mCfg.fixedExpenses.length} pagate`;
+      document.getElementById('fixedList').innerHTML = mCfg.fixedExpenses.map((f, idx) => `
+        <div class="list-item">
+          <div class="list-left">
+            <div class="check-circle ${f.paid ? 'checked' : ''}" onclick="toggleFixed(${idx})">
+              ${f.paid ? '✓' : ''}
+            </div>
+            <div>
+              <div class="item-title" style="${f.paid ? 'text-decoration:line-through; color:var(--text-muted);' : ''}">${escapeHtml(f.label)}</div>
+            </div>
+          </div>
+          <input type="text" class="small-input" value="${String(f.amount).replace('.', ',')}" onchange="updateFixedAmount(${idx}, this.value)" inputmode="decimal">
+        </div>
+      `).join('');
+
+      // 8 Categorie Variabili con barra e input modifica budget base
+      const varListHtml = Object.keys(DEFAULT_VAR_BUDGETS).map(catKey => {
+        const meta = CATEGORY_META[catKey];
+        const allocated = b.vb[catKey];
+        const baseVal = mCfg.varBudgets[catKey];
+        const spent = monthTxs.filter(t => t.category === catKey).reduce((s, t) => s + t.amount, 0);
+        const pct = allocated > 0 ? Math.min(100, (spent / allocated) * 100) : (spent > 0 ? 100 : 0);
+        const barCol = spent > allocated ? 'var(--red)' : meta.color;
+        const rem = allocated - spent;
+
+        return `
+          <div style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <div>
+                <div style="font-size:14px; font-weight:600;">${meta.label}</div>
+                <div style="font-size:11px; color:${rem >= 0 ? 'var(--text-muted)' : 'var(--red)'};">
+                  Spesi: ${fmt(spent)} • ${rem >= 0 ? 'Restano ' + fmt(rem) : 'Sforato di ' + fmt(Math.abs(rem))}
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <input type="text" class="small-input" value="${String(baseVal).replace('.', ',')}" onchange="updateVarBudget('${catKey}', this.value)" inputmode="decimal" title="Budget base mensile">
+              </div>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width:${pct}%; background:${barCol};"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('variableBudgetsList').innerHTML = varListHtml;
+
+      // Render Tab Salvadanai
+      document.getElementById('vaultEmergencyVal').textContent = fmt(state.vaults.emergency);
+      document.getElementById('vaultMotoVal').textContent = fmt(state.vaults.moto);
+      document.getElementById('monthlyEmQuota').textContent = fmt(b.emergency);
+
+      const motoSpentThisMonth = monthTxs.filter(t => t.category === 'moto').reduce((s, t) => s + t.amount, 0);
+      const motoRemThisMonth = Math.max(0, b.vb.moto - motoSpentThisMonth);
+      document.getElementById('monthlyMotoRem').textContent = fmt(motoRemThisMonth);
+
+      const closeBtn = document.getElementById('closeMonthBtn');
+      const closedTag = document.getElementById('monthClosedTag');
+      if (mCfg.closed) {
+        closedTag.textContent = 'Già contabilizzato ✓';
+        closedTag.style.color = 'var(--green)';
+        closeBtn.textContent = 'Annulla Chiusura Mese (Riapri)';
+        closeBtn.className = 'btn btn-ghost';
+      } else {
+        closedTag.textContent = 'Aperto';
+        closedTag.style.color = 'var(--orange)';
+        closeBtn.textContent = `Contabilizza e Chiudi ${formatMonthTitle(activeMonthKey)}`;
+        closeBtn.className = 'btn btn-success';
+      }
+    }
+
+    function renderTxRow(t, showFullDate = false) {
+      const meta = CATEGORY_META[t.category] || { label: t.category };
+      const [y, m, d] = t.date.split('-');
+      const dateFormatted = showFullDate ? `${d}/${m}/${y}` : `${d}/${m}`;
+      return `
+        <div class="list-item">
+          <div style="min-width:0; padding-right:8px;">
+            <div class="item-title">${escapeHtml(t.note || meta.label)}</div>
+            <div class="item-sub">${meta.label} • ${dateFormatted} (Sett. ${t.week})</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+            <span style="font-weight:700; font-size:14px;">-${fmt(t.amount)}</span>
+            <button class="del-btn" onclick="deleteTx(${t.id})">✕</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Costruzione Calendario Interattivo
+    function renderCalendar(monthKey, monthTxs) {
+      document.getElementById('calMonthLabel').textContent = formatMonthTitle(monthKey);
+      const [year, month] = monthKey.split('-').map(Number);
+      const firstDayObj = new Date(year, month - 1, 1);
+      const daysInMonth = new Date(year, month, 0).getDate();
+
+      // Lunedì = 0 ... Domenica = 6
+      const startOffset = (firstDayObj.getDay() + 6) % 7;
+
+      const byDate = {};
+      monthTxs.forEach(t => {
+        if (!byDate[t.date]) byDate[t.date] = [];
+        byDate[t.date].push(t);
+      });
+
+      const nowISO = getTodayISO();
+      let html = '';
+
+      for (let i = 0; i < startOffset; i++) {
+        html += `<div class="cal-day empty"></div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dStr = String(day).padStart(2, '0');
+        const iso = `${monthKey}-${dStr}`;
+        const dayTxs = byDate[iso] || [];
+        const daySum = dayTxs.reduce((s, t) => s + t.amount, 0);
+        const isToday = iso === nowISO;
+        const isSelected = iso === selectedCalendarDate;
+
+        const dotsHtml = dayTxs.slice(0, 4).map(() => `<span class="cal-dot"></span>`).join('');
+        const sumHtml = daySum > 0 ? `<div class="cal-day-amt">${Math.round(daySum)}€</div>` : `<div class="cal-dot-row"></div>`;
+
+        html += `
+          <div class="cal-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" onclick="selectCalendarDate('${iso}')">
+            <div class="cal-day-num">${day}</div>
+            <div class="cal-dot-row">${dotsHtml}</div>
+            ${sumHtml}
+          </div>
+        `;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+
+      // Dettaglio giorno selezionato
+      const [sy, sm, sd] = selectedCalendarDate.split('-');
+      document.getElementById('selectedDayTitle').textContent = `Pagamenti del ${sd}/${sm}/${sy}`;
+      const selTxs = state.transactions.filter(t => t.date === selectedCalendarDate);
+      const selEl = document.getElementById('selectedDayList');
+      if (selTxs.length === 0) {
+        selEl.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:8px 0;">Nessun movimento in questa data.</div>`;
+      } else {
+        selEl.innerHTML = selTxs.map(t => renderTxRow(t, true)).join('');
+      }
+    }
+
+    function selectCalendarDate(isoDate) {
+      selectedCalendarDate = isoDate;
+      activeWeek = getWeekFromDate(isoDate);
+      document.getElementById('txDate').value = isoDate;
+      renderAll();
+    }
+
+    function preparePaymentOnSelectedDate() {
+      document.getElementById('txDate').value = selectedCalendarDate;
+      const targetBtn = document.getElementById('tabbtn-home');
+      switchTab('home', targetBtn);
+      setTimeout(() => {
+        const card = document.getElementById('quickAddCard');
+        card.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('txAmount').focus();
+      }, 150);
+    }
+
+    function renderFuturePayments() {
+      const nowISO = getTodayISO();
+      const futureTxs = state.transactions
+        .filter(t => t.date > nowISO)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      document.getElementById('futureCountBadge').textContent = `${futureTxs.length} programmati`;
+      const container = document.getElementById('futureTxList');
+
+      if (futureTxs.length === 0) {
+        container.innerHTML = `<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">Nessun pagamento futuro in coda. Usa il selettore data per programmare spese nei prossimi mesi.</div>`;
+      } else {
+        container.innerHTML = futureTxs.map(t => renderTxRow(t, true)).join('');
+      }
+    }
+
+    function setWeek(w) {
+      activeWeek = w;
+      renderAll();
+    }
+
+    function addTransaction() {
+      const amountEl = document.getElementById('txAmount');
+      const noteEl = document.getElementById('txNote');
+      const dateEl = document.getElementById('txDate');
+      const cat = document.getElementById('txCategory').value;
+
+      const amount = parseEuro(amountEl.value);
+      if (isNaN(amount) || amount <= 0) {
+        alert('Inserisci un importo valido maggiore di 0 (es. 12,50).');
+        return;
+      }
+
+      const isoDate = dateEl.value || getTodayISO();
+      const targetMonthKey = getMonthKeyFromDate(isoDate);
+      const targetWeek = getWeekFromDate(isoDate);
+
+      ensureMonthExists(targetMonthKey);
+
+      if (cat === 'moto_uso') {
+        state.vaults.moto -= amount;
+      } else if (cat === 'imprevisto_uso') {
+        state.vaults.emergency -= amount;
+      }
+
+      state.transactions.push({
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        amount,
+        category: cat,
+        date: isoDate,
+        monthKey: targetMonthKey,
+        week: targetWeek,
+        note: noteEl.value.trim()
+      });
+
+      amountEl.value = '';
+      noteEl.value = '';
+
+      if (targetMonthKey !== activeMonthKey) {
+        showToast(`Registrato in ${formatMonthTitle(targetMonthKey)} (Sett. ${targetWeek})`);
+      } else {
+        activeWeek = targetWeek;
+        selectedCalendarDate = isoDate;
+        showToast('Pagamento salvato!');
+      }
+
+      saveState();
+    }
+
+    function deleteTx(id) {
+      const tx = state.transactions.find(t => t.id === id);
+      if (!tx) return;
+      if (tx.category === 'moto_uso') state.vaults.moto += tx.amount;
+      if (tx.category === 'imprevisto_uso') state.vaults.emergency += tx.amount;
+      state.transactions = state.transactions.filter(t => t.id !== id);
+      saveState();
+    }
+
+    function updateIncome() {
+      const val = parseEuro(document.getElementById('incomeInput').value);
+      if (!isNaN(val) && val >= 0) {
+        const mCfg = ensureMonthExists(activeMonthKey);
+        mCfg.income = val;
+        showToast(`Entrate di ${formatMonthTitle(activeMonthKey)} aggiornate!`);
+        saveState();
+      } else {
+        alert('Inserisci un importo valido per le entrate.');
+      }
+    }
+
+    function toggleFixed(idx) {
+      const mCfg = ensureMonthExists(activeMonthKey);
+      mCfg.fixedExpenses[idx].paid = !mCfg.fixedExpenses[idx].paid;
+      saveState();
+    }
+
+    function updateFixedAmount(idx, rawVal) {
+      const val = parseEuro(rawVal);
+      if (!isNaN(val) && val >= 0) {
+        const mCfg = ensureMonthExists(activeMonthKey);
+        mCfg.fixedExpenses[idx].amount = val;
+        saveState();
+      }
+    }
+
+    function updateVarBudget(catKey, rawVal) {
+      const val = parseEuro(rawVal);
+      if (!isNaN(val) && val >= 0) {
+        const mCfg = ensureMonthExists(activeMonthKey);
+        mCfg.varBudgets[catKey] = val;
+        showToast('Budget variabile aggiornato');
+        saveState();
+      }
+    }
+
+    function resetVariableBudgets() {
+      const mCfg = ensureMonthExists(activeMonthKey);
+      mCfg.varBudgets = { ...DEFAULT_VAR_BUDGETS };
+      showToast('Budget variabili riportati ai valori standard');
+      saveState();
+    }
+
+    function manualVaultAdjust(vaultKey, sign) {
+      const label = vaultKey === 'emergency' ? 'Fondo Imprevisti Puri' : 'Salvadanaio Storico Moto';
+      const raw = prompt(`Importo da ${sign > 0 ? 'depositare in' : 'prelevare da'} ${label} (€):`);
+      if (!raw) return;
+      const val = parseEuro(raw);
+      if (!isNaN(val) && val > 0) {
+        state.vaults[vaultKey] += sign * val;
+        showToast('Salvadanaio aggiornato!');
+        saveState();
+      }
+    }
+
+    function closeCurrentMonth() {
+      const mCfg = ensureMonthExists(activeMonthKey);
+
+      // Se il mese è già chiuso, permetti di riaprirlo stornando l'accantonamento automatico
+      if (mCfg.closed) {
+        if (confirm(`Vuoi riaprire ${formatMonthTitle(activeMonthKey)}? Gli importi versati automaticamente alla chiusura verranno stornati dai salvadanai.`)) {
+          if (mCfg.closedSummary) {
+            state.vaults.emergency -= (mCfg.closedSummary.addedEmergency || 0);
+            state.vaults.moto -= (mCfg.closedSummary.addedMoto || 0);
+          }
+          mCfg.closed = false;
+          mCfg.closedSummary = null;
+          showToast('Mese riaperto');
+          saveState();
+        }
+        return;
+      }
+
+      const b = calculateMonthBudgets(activeMonthKey);
+      const monthTxs = state.transactions.filter(t => t.monthKey === activeMonthKey);
+
+      // Calcolo avanzo Moto (60€ base meno quanto speso nella categoria variabile 'moto')
+      const motoSpent = monthTxs.filter(t => t.category === 'moto').reduce((s, t) => s + t.amount, 0);
+      const addedMoto = Math.max(0, b.vb.moto - motoSpent);
+
+      // Calcolo avanzo sulle altre spese variabili
+      const otherVarKeys = ['spesa', 'casa', 'salute', 'benzina', 'viaggi', 'mensa', 'uscite'];
+      const otherVarBudget = otherVarKeys.reduce((s, k) => s + b.vb[k], 0);
+      const otherVarSpent = monthTxs.filter(t => otherVarKeys.includes(t.category)).reduce((s, t) => s + t.amount, 0);
+      const unspentOtherVars = otherVarBudget - otherVarSpent;
+
+      // Se hai speso più di 60€ per la moto nel mese, l'eccesso riduce il margine del mese
+      const motoOverspend = Math.max(0, motoSpent - b.vb.moto);
+      const addedEmergency = b.emergency + unspentOtherVars - motoOverspend;
+
+      const msg = `Chiusura di ${formatMonthTitle(activeMonthKey)}:\n\n` +
+        `• Quota base Fondo Imprevisti: ${fmt(b.emergency)}\n` +
+        `• Risparmio/Sforamento spese variabili: ${fmt(unspentOtherVars - motoOverspend)}\n` +
+        `➡ Totale versato nel Fondo Imprevisti: ${fmt(addedEmergency)}\n\n` +
+        `• Budget Moto non consumato (${fmt(b.vb.moto)} - ${fmt(motoSpent)}):\n` +
+        `➡ Totale versato nel Salvadanaio Moto: ${fmt(addedMoto)}\n\n` +
+        `Nota: tutti i movimenti del mese resteranno salvati e consultabili nel Calendario. Confermi?`;
+
+      if (confirm(msg)) {
+        state.vaults.emergency += addedEmergency;
+        state.vaults.moto += addedMoto;
+        mCfg.closed = true;
+        mCfg.closedSummary = { addedEmergency, addedMoto };
+        showToast('Mese contabilizzato nei Salvadanai!');
+        saveState();
+      }
+    }
+
+    function exportBackup() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `finanze_backup_${getTodayISO()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported && imported.months && Array.isArray(imported.transactions)) {
+            state = imported;
+            saveState();
+            showToast('Backup ripristinato!');
+          } else {
+            alert('Formato file di backup non riconosciuto.');
+          }
+        } catch (err) {
+          alert('Errore nella lettura del file JSON.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    // Inizializzazione
+    document.getElementById('txDate').value = todayISO;
+    ensureMonthExists(activeMonthKey);
+    renderAll();
+  </script>
+</body>
+</html>
